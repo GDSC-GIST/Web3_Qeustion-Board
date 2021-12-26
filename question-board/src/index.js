@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import TextEditor from './components/textEditor/TextEditor';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <TextEditor type='post' />
   </React.StrictMode>,
   document.getElementById('root')
 );
