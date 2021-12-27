@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Editor, EditorState, RichUtils } from 'draft-js';
 import 'draft-js/dist/Draft.css';
-import { contentTest } from '../../modules/contentTest';
-import { addAnswer } from '../../modules/addPost';
+import { questionTest } from '../../modules/contentTest';
+import { addQuestion } from '../../modules/addPost';
 
-const AnswerEditor = ({ parentId }) => {
+const PostEditor = () => {
   // initialize editor
   const [editorState, setEditorState] = useState(
     () => EditorState.createEmpty()
@@ -53,7 +53,7 @@ const AnswerEditor = ({ parentId }) => {
     const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
 
     if (cancel) {
-      onChange(EditorState.createEmpty());
+      setEditorState(EditorState.createEmpty());
     } else {
       event.preventDefault();
     }
@@ -61,23 +61,35 @@ const AnswerEditor = ({ parentId }) => {
 
   // submit
   const onSubmit = (event) => {
-    if (contentTest(editorState)) {
+    if (questionTest(editorState)) {
       try {
-        addAnswer(editorState, parentId);
-        alert('답변이 게시되었습니다');
+        addQuestion(editorState);
+        alert('질문이 게시되었습니다');
         setEditorState(EditorState.createEmpty());
       } catch (error) {
         event.preventDefault();
         console.log(error);
       }
+      
     } else {
       event.preventDefault();
     }
   };
-
+  
   return (
     <>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className='postEditor'>
+        <div className='subjectSelect'>
+          <select id='questionSubject'>
+            <option value='subject' defaultValue>과목 선택</option>
+            <option value='korean'>국어</option>
+            <option value='english'>영어</option>
+            <option value='mathematics'>수학</option>
+            <option value='science'>과학</option>
+          </select>
+          <input id='questionTitle' type={'text'} placeholder='제목을 입력하세요' />
+        </div>
+
         <div>
           <input
             type='button'
@@ -155,9 +167,9 @@ const AnswerEditor = ({ parentId }) => {
           type='submit'
           value='submit'
         />
-      </form>
+      </form>   
     </>
   );
-};
+}
 
-export default AnswerEditor;
+export default PostEditor;

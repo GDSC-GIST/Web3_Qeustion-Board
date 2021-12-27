@@ -18,12 +18,12 @@ const contentTest = (editorState) => {
   }
 };
 
-const postTest = (editorState) => {
+const questionTest = (editorState) => {
   // check subject is selected
-  const isSubjectSelected = (document.getElementById('postSubject').value !== 'subject');
+  const isSubjectSelected = (document.getElementById('questionSubject').value !== 'subject');
 
   // check title is neither null nor whitespace
-  const isTitleFilled = document.getElementById('postTitle').value.trim();
+  const isTitleFilled = document.getElementById('questionTitle').value.trim();
 
   if (!isSubjectSelected) {
     alert('과목을 선택하세요');
@@ -38,4 +38,4 @@ const postTest = (editorState) => {
   return true;
 };
 
-export { contentTest, postTest };
+export { contentTest, questionTest };
