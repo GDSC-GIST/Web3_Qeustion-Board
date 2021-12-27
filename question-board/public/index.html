@@ -1,43 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>QnA Site</title>
+    <link
+      href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"
+      rel="stylesheet"
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <link rel="stylesheet" href="../src/style.css" />
+    <script type="text/javascript" src="js/prefixfree.min.js"></script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <!-- Header -->
+    <header id="header">
+        <div class="navbar-left">          
+            <a class="logo" href="/">
+                <img src="https://res.cloudinary.com/startup-grind/image/upload/dpr_2.0,fl_sanitize/v1/gcs/platform-data-dsc/contentbuilder/logo_dark_horizontal_097s7oa.svg" class="svg" alt="Google Developer Student Clubs logo">
+            </a>
+        </div>
+    </header>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    
+    <!-- navigator -->
+    <nav>
+      <ul class="grade_menu">
+        <li>
+          <a href="">초등</a>
+        </li>
+        <li>
+          <a href="">중등</a>
+        </li>
+      </ul>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+
+      <div class="gnb_wrap">
+
+        <div class="inner" style="height: 100%">
+
+          <div class="le_nav swiper-container">
+            <ul class="swiper-wrapper">
+              <li class="swiper-slide">
+                <a href="">국어</a>
+              </li>
+              <li class="swiper-slide">
+                <a href="">수학</a>
+              </li>
+              <li class="swiper-slide">
+                <a href="">사회</a>
+              </li>
+              <li class="swiper-slide">
+                <a href="">과학</a>
+              </li>
+              <li class="swiper-slide">
+                <a href="">영어</a>
+              </li>
+            
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </nav>
+
+    <main id="main">
+      <div class="container">
+        <aside id="aisdeLeft" class="shortcut">
+          <div class="text_title">
+            <h2 class="subtitle">질문하기</h2>
+            <p class="description">궁금한 게 있으면 물어봐요</p>
+          </div>
+        </aside>
+        <section class="shortcut" id="section">
+          <article id="article">
+            <div id="article">
+              <div class="text_title">
+                <h2 class="subtitle">답변달기</h2>
+                <p class="description">지식을 다른 사람과 나눠요</p>
+              </div>
+            </div>
+          </article>
+        </section>
+        <aside id="aisdeRight" class="shortcut">
+          <div class="text_title">
+            <h2 class="subtitle">가이드</h2>
+            <p class="description">이 사이트가 처음이라면</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="container">
+        <section id="section">
+          <article id="question">
+            <div id="question">방금 올라온 질문</div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <footer id="footer">GDSC Toy Project</footer>
   </body>
 </html>
