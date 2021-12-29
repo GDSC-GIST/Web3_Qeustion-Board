@@ -1,17 +1,37 @@
-import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { useState } from 'react';
+import { dbService, storageService } from '../../firebase'
+import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, getDownloadURL, uploadString } from 'firebase/storage';
+import { v4 } from 'uuid';
+import { Editor, EditorState, RichUtils, convertToRaw } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { contentTest } from '../../modules/contentTest';
-import { addAnswer } from '../../modules/addPost';
 
 const AnswerEditor = ({ parentId }) => {
-  // initialize editor
-  const [editorState, setEditorState] = useState(
-    () => EditorState.createEmpty()
-  );
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [attachment, setAttachment] = useState('');
 
   const onChange = (editorState) => {
     setEditorState(editorState);
+  };
+
+  const onAttachChange = (event) => {
+    const { target: { files } } = event;
+    const file = files[0];
+    const fileReader = new FileReader();
+
+    fileReader.onloadend = (finishedEvent) => {
+      const { currentTarget: { result } } = finishedEvent;
+      setAttachment(result);
+    };
+
+    if (file) {
+      fileReader.readAsDataURL(file);
+    }
+  };
+
+  const onAttachRemove = () => {
+    setAttachment('');
   };
 
   // allow key command
@@ -60,24 +80,61 @@ const AnswerEditor = ({ parentId }) => {
   };
 
   // submit
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
+    event.preventDefault();
+
     if (contentTest(editorState)) {
-      try {
-        addAnswer(editorState, parentId);
-        alert('답변이 게시되었습니다');
-        setEditorState(EditorState.createEmpty());
-      } catch (error) {
-        event.preventDefault();
-        console.log(error);
+      const parentRef = doc(dbService, `question/${parentId}`);
+      const parentObj = (await getDoc(parentRef)).data();
+    
+      const answerObj = {
+        type: 'answer',
+        subject: parentObj.subject,
+        parentId: parentId,
+        parentType: 'question',
+        content: convertToRaw(editorState.getCurrentContent()),
+        createdAt: Date.now(),
+        editedAt: null,
+        userId: null,  // 나중에 유저 아이디 추가
+        commentList: [],
+      };
+    
+      const answer = await addDoc(collection(dbService, 'answer'), answerObj);
+      updateDoc(parentRef, {
+        answerList: [...parentObj.answerList, answer.id],
+      });
+
+      if (attachment) {
+        const attachmentRef = ref(storageService, `${v4()}`);
+        await uploadString(attachmentRef, attachment, 'data_url');
+        const attachmentUrl = await getDownloadURL(attachmentRef);
+        
+        await updateDoc(answer, {
+          attachmentUrl: attachmentUrl,
+        });
       }
-    } else {
-      event.preventDefault();
+    
+      if (!parentObj.isAnswered) {
+        updateDoc(parentRef, {
+          isAnswered: true,
+        });
+      }
+
+      setEditorState(EditorState.createEmpty());
+      setAttachment('');
     }
   };
 
   return (
     <>
       <form onSubmit={onSubmit}>
+        <div>
+          <input id='questionAttachment' type='file' accept='image/*' onChange={onAttachChange} />
+          {attachment && (
+            <input type='button' onClick={onAttachRemove} />
+          )}
+        </div>
+
         <div>
           <input
             type='button'

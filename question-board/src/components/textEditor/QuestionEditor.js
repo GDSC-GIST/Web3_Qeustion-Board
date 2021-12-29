@@ -1,17 +1,37 @@
 import { useState } from 'react';
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { dbService, storageService } from '../../firebase'
+import { collection, addDoc, updateDoc } from 'firebase/firestore';
+import { ref, getDownloadURL, uploadString } from 'firebase/storage';
+import { v4 } from 'uuid';
+import { Editor, EditorState, RichUtils, convertToRaw } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { questionTest } from '../../modules/contentTest';
-import { addQuestion } from '../../modules/addPost';
 
-const PostEditor = () => {
-  // initialize editor
-  const [editorState, setEditorState] = useState(
-    () => EditorState.createEmpty()
-  );
+const QuestionEditor = () => {
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [attachment, setAttachment] = useState('');
 
   const onChange = (editorState) => {
     setEditorState(editorState);
+  };
+
+  const onAttachChange = (event) => {
+    const { target: { files } } = event;
+    const file = files[0];
+    const fileReader = new FileReader();
+
+    fileReader.onloadend = (finishedEvent) => {
+      const { currentTarget: { result } } = finishedEvent;
+      setAttachment(result);
+    };
+
+    if (file) {
+      fileReader.readAsDataURL(file);
+    }
+  };
+
+  const onAttachRemove = () => {
+    setAttachment('');
   };
 
   // allow key command
@@ -60,19 +80,37 @@ const PostEditor = () => {
   };
 
   // submit
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
+    event.preventDefault();
+
     if (questionTest(editorState)) {
-      try {
-        addQuestion(editorState);
-        alert('질문이 게시되었습니다');
-        setEditorState(EditorState.createEmpty());
-      } catch (error) {
-        event.preventDefault();
-        console.log(error);
-      }
+      const questionObj = {
+        type: 'question',
+        subject: document.getElementById('questionSubject').value,
+        title: document.getElementById('questionTitle').value.trim(),
+        content: JSON.stringify(convertToRaw(editorState.getCurrentContent())),
+        attachmentUrl: null,
+        isAnswered: false,
+        createdAt: Date.now(),
+        editedAt: null,
+        userId: null,  // 나중에 유저 아이디 추가
+        commentList: [],
+        answerList: [],
+      };
+        
+      const question = await addDoc(collection(dbService, 'question'), questionObj);
       
-    } else {
-      event.preventDefault();
+      if (attachment) {
+        const attachmentRef = ref(storageService, `${v4()}`);
+        await uploadString(attachmentRef, attachment, 'data_url');
+        const attachmentUrl = await getDownloadURL(attachmentRef);
+        
+        await updateDoc(question, {
+          attachmentUrl: attachmentUrl,
+        });
+      }
+
+      alert('질문이 게시되었습니다');
     }
   };
   
@@ -87,7 +125,14 @@ const PostEditor = () => {
             <option value='mathematics'>수학</option>
             <option value='science'>과학</option>
           </select>
-          <input id='questionTitle' type={'text'} placeholder='제목을 입력하세요' />
+          <input id='questionTitle' type='text' placeholder='제목을 입력하세요' />
+        </div>
+
+        <div>
+          <input id='questionAttachment' type='file' accept='image/*' onChange={onAttachChange} />
+          {attachment && (
+            <input type='button' onClick={onAttachRemove} />
+          )}
         </div>
 
         <div>
@@ -172,4 +217,4 @@ const PostEditor = () => {
   );
 }
 
-export default PostEditor;
+export default QuestionEditor;

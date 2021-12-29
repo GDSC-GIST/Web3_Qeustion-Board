@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Editor, EditorState } from 'draft-js';
+import { dbService } from '../../firebase'
+import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { Editor, EditorState, convertToRaw  } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { contentTest } from '../../modules/contentTest';
-import { addQuestionComment, addAnswerComment } from '../../modules/addPost';
+
+
 
 const CommentEditor = ({ type, parentId }) => {
   const [editorState, setEditorState] = useState(
@@ -19,28 +22,44 @@ const CommentEditor = ({ type, parentId }) => {
     }
   }
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
+    event.preventDefault();
+
     if (contentTest(editorState)) {
-      try {
-        switch (type) {
-          case 'question':
-            addQuestionComment(editorState, parentId);
-            break;
-          
-          case 'answer':
-            addAnswerComment(editorState, parentId);
-            break;
-        }
-        alert('댓글이 게시되었습니다');
-        //setEditorState(EditorState.createEmpty());
-      } catch (error) {
-        event.preventDefault();
-        console.log(error);
+      let parentRef = null;
+      switch (type) {
+        case 'question':
+          doc(dbService, `question/${parentId}`);
+          break;
+        
+        case 'answer':
+          doc(dbService, `answer/${parentId}`);
+          break;
       }
-    } else {
-      event.preventDefault();
-    }
-  };
+
+      const parentObj = (await getDoc(parentRef)).data();
+
+      const commentObj = {
+        type: 'comment',
+        subject: parentObj.subject,
+        parentId: parentId,
+        parentType: parentObj.type,
+        content: convertToRaw(editorState.getCurrentContent()),
+        createdAt: Date.now(),
+        editedAt: null,
+        userId: null,  // 나중에 유저 아이디 추가
+      };
+
+      const comment = await addDoc(collection(dbService, 'comment'), commentObj);
+      updateDoc(parentRef, {
+        commentList: [...parentObj.commentList, comment.id],
+      });
+      
+      alert('댓글이 게시되었습니다');
+
+      setEditorState(EditorState.createEmpty());
+    };
+  }
 
   return (
     <form onSubmit={onSubmit} className='commentEditor'>
