@@ -1,0 +1,206 @@
+@charset "utf-8";
+@import url(http://fonts.googleapis.com/css?family=Play);
+@import url(http://fonts.googleapis.com/css?family=Monoton);
+
+header,
+aside,
+section,
+footer {
+  margin: 3px;
+  text-align: center;
+  font-size: 30px;
+}
+
+header,
+footer {
+  background-color: #f8f5f5;
+  color: black;
+}
+.shortcut {
+  position: relative;
+  display: block;
+  margin-right: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px 0 rgb(150 153 159 / 50%);
+}
+
+.container {
+  padding: 2.2rem 0 2.2rem 0;
+  display: flex;
+  margin: 0 auto;
+  max-width: 1360px;
+}
+#aisdeLeft {
+  flex-grow: 1;
+  background-color: rgb(141, 132, 119);
+}
+#section {
+  flex-grow: 1;
+  background-color: #a0a0a0;
+}
+#aisdeRight {
+  flex-grow: 1;
+  background-color: rgb(199, 188, 174);
+}
+#article {
+  flex-grow: 1;
+  height: 300px;
+}
+
+#question {
+  flex-grow: 1;
+  height: 600px;
+}
+
+.text_title {
+  position: relative;
+  z-index: 1;
+  margin: 20px 20px 0;
+}
+
+.subtitle {
+  background-position: -104px -82px;
+  font-size: 18px;
+  height: 16px;
+}
+
+.description {
+  display: -webkit-box;
+  max-height: 72px;
+  overflow: hidden;
+  margin-top: 13px;
+  font-size: 18px;
+  line-height: 24px;
+  color: #fff;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 20%);
+  font-weight: 300;
+  word-wrap: break-word;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+ul {
+  display: block;
+  list-style-type: disc;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+  list-style: none;
+}
+
+nav .gnb_wrap {
+  position: relative;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.row {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+/* tablet */
+@media screen and (max-width: 1250px) {
+  #aisdeLeft {
+    display: none;
+  }
+}
+/* mobile */
+@media screen and (max-width: 900px) {
+  #aisdeRight {
+    display: none;
+  }
+}
+
+nav {
+  position: relative;
+  z-index: 101;
+}
+
+nav .grade_menu {
+  width: 100rem;
+  margin: 4rem auto 0;
+}
+nav .grade_menu:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+nav .grade_menu li {
+  float: left;
+  padding-right: 3.5rem;
+}
+nav .grade_menu li:first-child {
+  padding-left: 2rem;
+}
+nav .grade_menu li a {
+  display: block;
+  padding-bottom: 1.6rem;
+  font-size: 2rem;
+  color: #a0a0a0;
+}
+nav .grade_menu li a.on,
+nav .grade_menu li a:focus,
+nav .grade_menu li a:hover {
+  font-weight: bold;
+  color: #060e2d;
+  border-bottom: 3px solid #060e2d;
+}
+nav .grade_menu li:nth-child(1) a.on,
+nav .grade_menu li:nth-child(1) a:focus,
+nav .grade_menu li:nth-child(1) a:hover {
+  border-color: #060e2d;
+}
+
+@media screen and (min-width: 1024px) {
+  nav .gnb_wrap .le_nav > ul {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    padding-left: 2rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  nav .gnb_wrap .le_nav > ul > li {
+    position: relative;
+    width: calc(100% / 7);
+    text-align: center;
+  }
+}
+@media screen and (min-width: 1024px) {
+  nav .gnb_wrap .le_nav > ul > li > a {
+    display: block;
+    margin: 0 auto 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+nav .gnb_wrap .inner {
+  height: 6rem;
+  width: 110rem;
+  margin: 0 auto;
+  position: relative;
+  height: 100%;
+  overflow: visible;
+}
+
+.logo {
+  display: flex;
+  height: 10rem;
+  width: 200rem;
+  margin: 0 auto 0;
+  align-items: center;
+}
+
+/*flexbox의 width를 들리고 margin을 auto로 줘서 정렬하는 방식을 사용했습니다. */
