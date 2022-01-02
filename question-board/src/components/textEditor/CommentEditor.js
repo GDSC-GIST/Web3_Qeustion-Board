@@ -52,7 +52,7 @@ const CommentEditor = ({ type, parentId }) => {
 
       const comment = await addDoc(collection(dbService, 'comment'), commentObj);
       updateDoc(parentRef, {
-        commentList: [...parentObj.commentList, comment.id],
+        comments: [...parentObj.comments, comment.id],
       });
       
       alert('댓글이 게시되었습니다');

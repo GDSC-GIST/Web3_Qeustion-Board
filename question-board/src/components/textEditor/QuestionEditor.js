@@ -96,8 +96,8 @@ const QuestionEditor = () => {
         createdAt: Date.now(),
         editedAt: null,
         userId: null,  // 나중에 유저 아이디 추가
-        commentList: [],
-        answerList: [],
+        comments: [],
+        answers: [],
       };
       
       // question 객체를 DB에 추가

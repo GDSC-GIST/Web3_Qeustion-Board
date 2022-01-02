@@ -96,12 +96,12 @@ const AnswerEditor = ({ parentId }) => {
         createdAt: Date.now(),
         editedAt: null,
         userId: null,  // 나중에 유저 아이디 추가
-        commentList: [],
+        comments: [],
       };
     
       const answer = await addDoc(collection(dbService, 'answer'), answerObj);
       updateDoc(parentRef, {
-        answerList: [...parentObj.answerList, answer.id],
+        answers: [...parentObj.answers, answer.id],
       });
 
       if (attachment) {

@@ -15,12 +15,12 @@ const TextEditor = ({type, parentId}) => {
         <AnswerEditor parentId={parentId}/>
       );
     
-    case 'questionComment':
+    case 'qComment':
       return (
         <CommentEditor type='question' parentId={parentId} />
       );
 
-    case 'answerComment':
+    case 'aComment':
       return (
         <CommentEditor type='answer' parentId={parentId} />
       );
