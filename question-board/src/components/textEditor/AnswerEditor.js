@@ -93,6 +93,7 @@ const AnswerEditor = ({ parentId }) => {
         parentId: parentId,
         parentType: 'question',
         content: convertToRaw(editorState.getCurrentContent()),
+        attachmentUrl: null,
         createdAt: Date.now(),
         editedAt: null,
         userId: null,  // 나중에 유저 아이디 추가
@@ -120,6 +121,8 @@ const AnswerEditor = ({ parentId }) => {
         });
       }
 
+      alert('답변이 게시되었습니다');
+
       setEditorState(EditorState.createEmpty());
       setAttachment('');
     }
@@ -131,7 +134,7 @@ const AnswerEditor = ({ parentId }) => {
         <div>
           <input id='questionAttachment' type='file' accept='image/*' onChange={onAttachChange} />
           {attachment && (
-            <input type='button' onClick={onAttachRemove} />
+            <input type='button' value='삭제' onClick={onAttachRemove} />
           )}
         </div>
 

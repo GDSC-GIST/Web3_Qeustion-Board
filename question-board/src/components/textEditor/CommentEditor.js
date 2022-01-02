@@ -29,11 +29,11 @@ const CommentEditor = ({ type, parentId }) => {
       let parentRef = null;
       switch (type) {
         case 'question':
-          doc(dbService, `question/${parentId}`);
+          parentRef = doc(dbService, `question/${parentId}`);
           break;
         
         case 'answer':
-          doc(dbService, `answer/${parentId}`);
+          parentRef = doc(dbService, `answer/${parentId}`);
           break;
       }
 
