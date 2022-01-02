@@ -86,9 +86,10 @@ const QuestionEditor = () => {
     if (questionTest(editorState)) {
       const questionObj = {
         type: 'question',
-        subject: document.getElementById('questionSubject').value,
+        grade: document.getElementById('grade').value,
+        subject: document.getElementById('subject').value,
         title: document.getElementById('questionTitle').value.trim(),
-        content: JSON.stringify(convertToRaw(editorState.getCurrentContent())),
+        content: convertToRaw(editorState.getCurrentContent()),
         attachmentUrl: null,
         isAnswered: false,
         createdAt: Date.now(),
@@ -117,13 +118,18 @@ const QuestionEditor = () => {
   return (
     <>
       <form onSubmit={onSubmit} className='postEditor'>
-        <div className='subjectSelect'>
-          <select id='questionSubject'>
-            <option value='subject' defaultValue>과목 선택</option>
-            <option value='korean'>국어</option>
-            <option value='english'>영어</option>
-            <option value='mathematics'>수학</option>
-            <option value='science'>과학</option>
+        <div className='select'>
+          <select id='grade'>
+            <option value='' defaultValue>학년 선택</option>
+            <option value='초등'>초등</option>
+            <option value='중등'>중등</option>
+          </select>
+          <select id='subject'>
+            <option value='' defaultValue>과목 선택</option>
+            <option value='국어'>국어</option>
+            <option value='영어'>영어</option>
+            <option value='수학'>수학</option>
+            <option value='과학'>과학</option>
           </select>
           <input id='questionTitle' type='text' placeholder='제목을 입력하세요' />
         </div>
@@ -131,7 +137,7 @@ const QuestionEditor = () => {
         <div>
           <input id='questionAttachment' type='file' accept='image/*' onChange={onAttachChange} />
           {attachment && (
-            <input type='button' onClick={onAttachRemove} />
+            <input type='button' value='삭제' onClick={onAttachRemove} />
           )}
         </div>
 
