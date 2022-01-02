@@ -1,6 +1,6 @@
 import AnswerEditor from './AnswerEditor';
-import QuestionEditor from './QuestionEditor';
 import CommentEditor from './CommentEditor'
+import QuestionEditor from './QuestionEditor';
 
 
 const TextEditor = ({type, parentId}) => {

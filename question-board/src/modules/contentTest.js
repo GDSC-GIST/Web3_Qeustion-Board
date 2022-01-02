@@ -1,18 +1,18 @@
 const contentTest = (editorState) => {
   // check content is neither null nor whitespace
   const blockMap = editorState.getCurrentContent().getBlockMap();
-  let isContentFilled = false;
+  let contentFilled = false;
 
   for (const [key, content]  of blockMap) {
     const text = content.getText().trim();
 
     if (text) {
-      isContentFilled = true;
+      contentFilled = true;
       return true;
     }
   }
 
-  if (!isContentFilled) {
+  if (!contentFilled) {
     alert('내용을 입력하세요')
     return false;
   }
@@ -20,21 +20,21 @@ const contentTest = (editorState) => {
 
 const questionTest = (editorState) => {
   // check grade is selected
-  const isGradeSelected = document.getElementById('grade').value;
+  const gradeSelected = document.getElementById('grade').value;
 
   // check subject is selected
-  const isSubjectSelected = document.getElementById('subject').value;
+  const subjectSelected = document.getElementById('subject').value;
 
   // check title is neither null nor whitespace
-  const isTitleFilled = document.getElementById('questionTitle').value.trim();
+  const titleFilled = document.getElementById('questionTitle').value.trim();
 
-  if (!isGradeSelected) {
+  if (!gradeSelected) {
     alert('학년을 선택하세요');
     return false;
-  } else if (!isSubjectSelected) {
+  } else if (!subjectSelected) {
     alert('과목을 선택하세요');
     return false;
-  } else if (!isTitleFilled) {
+  } else if (!titleFilled) {
     alert('제목을 입력하세요');
     return false;
   } else if (!contentTest(editorState)) {
