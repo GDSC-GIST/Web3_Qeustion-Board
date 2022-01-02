@@ -20,7 +20,7 @@ const contentTest = (editorState) => {
 
 const questionTest = (editorState) => {
   // check grade is selected
-  const isGradeSelected = document.getElementById('grade').valeu;
+  const isGradeSelected = document.getElementById('grade').value;
 
   // check subject is selected
   const isSubjectSelected = document.getElementById('subject').value;
