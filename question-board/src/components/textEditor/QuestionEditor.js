@@ -72,6 +72,7 @@ const QuestionEditor = () => {
   const onCancel = (event) => {
     const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
 
+    // 글 작성을 취소할 경우 텍스트 에디터 초기화
     if (cancel) {
       setEditorState(EditorState.createEmpty());
     } else {
@@ -98,9 +99,11 @@ const QuestionEditor = () => {
         commentList: [],
         answerList: [],
       };
-        
-      const question = await addDoc(collection(dbService, 'question'), questionObj);
       
+      // question 객체를 DB에 추가
+      const question = await addDoc(collection(dbService, 'question'), questionObj);
+
+      // 첨부파일이 있는 경우 데이터 업데이트
       if (attachment) {
         const attachmentRef = ref(storageService, `${v4()}`);
         await uploadString(attachmentRef, attachment, 'data_url');
