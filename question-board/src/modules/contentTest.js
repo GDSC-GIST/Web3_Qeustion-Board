@@ -19,13 +19,19 @@ const contentTest = (editorState) => {
 };
 
 const questionTest = (editorState) => {
+  // check grade is selected
+  const isGradeSelected = document.getElementById('grade').valeu;
+
   // check subject is selected
-  const isSubjectSelected = (document.getElementById('questionSubject').value !== 'subject');
+  const isSubjectSelected = document.getElementById('subject').value;
 
   // check title is neither null nor whitespace
   const isTitleFilled = document.getElementById('questionTitle').value.trim();
 
-  if (!isSubjectSelected) {
+  if (!isGradeSelected) {
+    alert('학년을 선택하세요');
+    return false;
+  } else if (!isSubjectSelected) {
     alert('과목을 선택하세요');
     return false;
   } else if (!isTitleFilled) {
