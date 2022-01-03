@@ -13,7 +13,7 @@ const Viewer = ({ type, postId }) => {
   };
 
   useEffect(() => {
-    const getContent = async () => {
+    const getData = async () => {
       const postRef = doc(dbService, `${type}/${postId}`);
       const newPostObj = (await getDoc(postRef)).data();
       setPostObj({ ...newPostObj });
@@ -24,7 +24,7 @@ const Viewer = ({ type, postId }) => {
       setDataFetched(true);
     };
   
-    getContent();
+    getData();
   }, [type, postId, dataFetched]);
 
   return (

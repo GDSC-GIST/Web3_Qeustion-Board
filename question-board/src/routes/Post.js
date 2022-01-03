@@ -11,7 +11,7 @@ const Post = ({ questionId }) => {
   const [questionObj, setQuestionObj] = useState({});
 
   useEffect(() => {
-    const getQuestion = async () => {
+    const getData = async () => {
       const questionRef = doc(dbService, `question/${questionId}`);
       const newQuestionObj = (await getDoc(questionRef)).data();
   
@@ -19,7 +19,7 @@ const Post = ({ questionId }) => {
       setDataFetched(true);
     };
 
-    getQuestion();
+    getData();
   }, [questionId, dataFetched]);
 
   return (
