@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { dbService } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import Viewer from './Viewer';
-import CommentViewer from './CommentViewer';
+import CommentsViewer from './CommentsViewer';
 
+// 답변과 댓글 렌더
 const AnswerViewer = ({ answerId }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [comments, setComments] = useState([]);
@@ -24,7 +25,7 @@ const AnswerViewer = ({ answerId }) => {
     <>
       <Viewer type='answer' postId={answerId} />
       {dataFetched ?
-        (comments.length ? <CommentViewer comments={comments} /> : <></>) : 
+        (comments.length ? <CommentsViewer comments={comments} /> : <></>) : 
         <></>
       }
     </>
