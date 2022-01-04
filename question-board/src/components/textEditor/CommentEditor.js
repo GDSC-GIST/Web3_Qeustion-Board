@@ -1,16 +1,34 @@
-import { useState } from 'react';
-import { dbService } from '../../firebase'
-import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { Editor, EditorState, convertToRaw  } from 'draft-js';
+import { useEffect, useState } from 'react';
+import { dbService } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { convertFromRaw, Editor, EditorState } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { contentTest } from '../../modules/contentTest';
+import { addComment } from '../../modules/addPost';
+import { updateComment } from '../../modules/updatePost';
 
+const CommentEditor = ({ commentId = null, parentId }) => {
+  const [dataFetched, setDataFetched] = useState(false);
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
+  useEffect(() => {
+    // data fetch
+    const getData = async () => {
+      const commentRef = doc(dbService, `comment/${commentId}`);
+      const commentObj = (await getDoc(commentRef)).data();
 
-const CommentEditor = ({ type, parentId }) => {
-  const [editorState, setEditorState] = useState(
-    () => EditorState.createEmpty()
-  );
+      setEditorState(EditorState.createWithContent(
+        convertFromRaw(commentObj.content)
+      ));
+
+      setDataFetched(true);
+    };
+
+    // 수정하는 경우 Data fetch
+    if (commentId) {
+      getData();
+    }
+  }, [commentId, dataFetched]);
 
   const onCancel = (event) => {
     const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
@@ -25,61 +43,42 @@ const CommentEditor = ({ type, parentId }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    if (contentTest(editorState)) {
-      let parentRef = null;
-      switch (type) {
-        case 'question':
-          parentRef = doc(dbService, `question/${parentId}`);
-          break;
-        
-        case 'answer':
-          parentRef = doc(dbService, `answer/${parentId}`);
-          break;
-      }
+    if (commentId && contentTest(editorState)) {
+      await updateComment(commentId, editorState);
+      alert('댓글이 수정되었습니다');
 
-      const parentObj = (await getDoc(parentRef)).data();
-
-      const commentObj = {
-        type: 'comment',
-        subject: parentObj.subject,
-        parentId: parentId,
-        parentType: parentObj.type,
-        content: convertToRaw(editorState.getCurrentContent()),
-        createdAt: Date.now(),
-        editedAt: null,
-        userId: null,  // 나중에 유저 아이디 추가
-      };
-
-      const comment = await addDoc(collection(dbService, 'comment'), commentObj);
-      updateDoc(parentRef, {
-        comments: [...parentObj.comments, comment.id],
-      });
-      
+      setEditorState(EditorState.createEmpty());
+      // 원래 페이지 리다이렉트
+    } else if (contentTest(editorState)) {
+      await addComment(parentId, editorState);
       alert('댓글이 게시되었습니다');
 
       setEditorState(EditorState.createEmpty());
-    };
+      // 원래 페이지 리다이렉트
+    }
   }
 
   return (
-    <form onSubmit={onSubmit} className='commentEditor'>
-      <Editor
-        placeholder='내용을 입력하세요'
-        editorState={editorState}
-        onChange={setEditorState}
-      />
+    <>
+      <form onSubmit={onSubmit} className='commentEditor'>
+        <Editor
+          placeholder='내용을 입력하세요'
+          editorState={editorState}
+          onChange={setEditorState}
+        />
 
-      <input
-        type='reset'
-        value='cancel'
-        onClick={onCancel}
-      />
-      <input
-        type='submit'
-        value='submit'
-      />
-    </form>
-  )
+        <input
+          type='reset'
+          value='취소'
+          onClick={onCancel}
+        />
+        <input
+          type='submit'
+          value='댓글 달기'
+        />
+      </form>
+    </>
+  );
 };
 
 export default CommentEditor;

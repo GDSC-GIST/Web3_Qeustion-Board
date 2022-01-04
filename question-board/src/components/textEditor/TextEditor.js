@@ -2,27 +2,21 @@ import AnswerEditor from './AnswerEditor';
 import CommentEditor from './CommentEditor'
 import QuestionEditor from './QuestionEditor';
 
-
-const TextEditor = ({type, parentId}) => {
+const TextEditor = ({ type, postId = null, parentId = null }) => {
   switch (type) {
     case 'question':
       return (
-        <QuestionEditor />
+        <QuestionEditor questionId={postId} />
       );
       
     case 'answer':
       return (
-        <AnswerEditor parentId={parentId}/>
+        <AnswerEditor answerId={postId} parentId={parentId}/>
       );
     
-    case 'qComment':
+    case 'comment':
       return (
-        <CommentEditor type='question' parentId={parentId} />
-      );
-
-    case 'aComment':
-      return (
-        <CommentEditor type='answer' parentId={parentId} />
+        <CommentEditor commentId={postId} parentId={parentId} />
       );
     
     default:

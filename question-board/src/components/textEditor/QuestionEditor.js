@@ -1,19 +1,39 @@
-import { useState } from 'react';
-import { dbService, storageService } from '../../firebase'
-import { collection, addDoc, updateDoc } from 'firebase/firestore';
-import { ref, getDownloadURL, uploadString } from 'firebase/storage';
-import { v4 } from 'uuid';
-import { Editor, EditorState, RichUtils, convertToRaw } from 'draft-js';
+import { useEffect, useState } from 'react';
+import { dbService } from '../../firebase'
+import { doc, getDoc } from 'firebase/firestore';
+import { Editor, EditorState, RichUtils, convertFromRaw } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { questionTest } from '../../modules/contentTest';
+import { addQuestion } from '../../modules/addPost';
+import { updateQuestion } from '../../modules/updatePost';
 
-const QuestionEditor = () => {
+const QuestionEditor = ({ questionId = null }) => {
+  const [dataFetched, setDataFetched] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [attachment, setAttachment] = useState('');
 
-  const onChange = (editorState) => {
-    setEditorState(editorState);
-  };
+  useEffect(() => {
+    // data fetch
+    const getData = async () => {
+      const questionRef = doc(dbService, `question/${questionId}`);
+      const questionObj = (await getDoc(questionRef)).data();
+
+      setEditorState(EditorState.createWithContent(
+        convertFromRaw(questionObj.content)
+      ));
+      document.getElementById('grade').value = questionObj.grade;
+      document.getElementById('subject').value = questionObj.subject;
+      document.getElementById('questionTitle').value = questionObj.title;
+      setAttachment(questionObj.attachmentUrl);
+
+      setDataFetched(true);
+    };
+
+    // 수정하는 경우 data fetch
+    if (questionId) {
+      getData();
+    }
+  }, [questionId, dataFetched])
 
   const onAttachChange = (event) => {
     const { target: { files } } = event;
@@ -34,6 +54,11 @@ const QuestionEditor = () => {
     setAttachment('');
   };
 
+  // handle editor state change
+  const onChange = (editorState) => {
+    setEditorState(editorState);
+  };
+
   // allow key command
   const handleKeyCommand = (command, editorState) => {
     const newState = RichUtils.handleKeyCommand(editorState, command);
@@ -46,10 +71,7 @@ const QuestionEditor = () => {
     return 'not-handled';
   };
 
-  // handle undo and redo button
-  const disableUndo = (editorState.getUndoStack().size <= 0);
-  const disableRedo = (editorState.getRedoStack().size <= 0);
-
+  // handle undo and redo
   const onUndoClick = () => {
     onChange(EditorState.undo(editorState));
   };
@@ -59,24 +81,25 @@ const QuestionEditor = () => {
   };
 
   // inline text styling
-  const onInlineStyleClick = (type) => {
+  const onInlineStyleClick = (event, type) => {
+    event.preventDefault();
     onChange(RichUtils.toggleInlineStyle(editorState, type));
   };
 
   // block styling
-  const onBlockStyleClick = (type) => {
+  const onBlockStyleClick = (event, type) => {
+    event.preventDefault();
     onChange(RichUtils.toggleBlockType(editorState, type));
   };
 
   // cancel
   const onCancel = (event) => {
+    event.preventDefault();
+
     const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
 
-    // 글 작성을 취소할 경우 텍스트 에디터 초기화
     if (cancel) {
-      setEditorState(EditorState.createEmpty());
-    } else {
-      event.preventDefault();
+      // 글 작성울 취소할 경우 이전 페이지로 연결
     }
   };
 
@@ -84,37 +107,14 @@ const QuestionEditor = () => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    if (questionTest(editorState)) {
-      const questionObj = {
-        type: 'question',
-        grade: document.getElementById('grade').value,
-        subject: document.getElementById('subject').value,
-        title: document.getElementById('questionTitle').value.trim(),
-        content: convertToRaw(editorState.getCurrentContent()),
-        attachmentUrl: null,
-        isAnswered: false,
-        createdAt: Date.now(),
-        editedAt: null,
-        userId: null,  // 나중에 유저 아이디 추가
-        comments: [],
-        answers: [],
-      };
-      
-      // question 객체를 DB에 추가
-      const question = await addDoc(collection(dbService, 'question'), questionObj);
+    if (questionId && questionTest(editorState)) { // 수정하는 경우
+      await updateQuestion(questionId, editorState, attachment);
+      alert('질문이 수정되었습니다');
 
-      // 첨부파일이 있는 경우 데이터 업데이트
-      if (attachment) {
-        const attachmentRef = ref(storageService, `${v4()}`);
-        await uploadString(attachmentRef, attachment, 'data_url');
-        const attachmentUrl = await getDownloadURL(attachmentRef);
-        
-        await updateDoc(question, {
-          attachmentUrl: attachmentUrl,
-        });
-      }
-
+    } else if (questionTest(editorState)) { // 새로 만드는 경우
+      await addQuestion(editorState, attachment);
       alert('질문이 게시되었습니다');
+      // 질문 페이지로 연결
     }
   };
   
@@ -123,7 +123,7 @@ const QuestionEditor = () => {
       <form onSubmit={onSubmit} className='postEditor'>
         <div className='select'>
           <select id='grade'>
-            <option value='' defaultValue>학년 선택</option>
+            <option value='' defaultValue>과정 선택</option>
             <option value='초등'>초등</option>
             <option value='중등'>중등</option>
           </select>
@@ -134,59 +134,72 @@ const QuestionEditor = () => {
             <option value='수학'>수학</option>
             <option value='과학'>과학</option>
           </select>
-          <input id='questionTitle' type='text' placeholder='제목을 입력하세요' />
+          <input 
+            id='questionTitle' 
+            type='text'
+            placeholder='제목을 입력하세요'
+          />
         </div>
 
-        <div>
-          <input id='questionAttachment' type='file' accept='image/*' onChange={onAttachChange} />
-          {attachment && (
-            <input type='button' value='삭제' onClick={onAttachRemove} />
-          )}
+        <div className='attachButton'>
+          <input 
+            id='questionAttachment' 
+            type='file' 
+            accept='image/*' 
+            onChange={onAttachChange} 
+          />
+          <input 
+            type='button' 
+            value='삭제' 
+            onClick={onAttachRemove} 
+            disabled={!attachment} 
+            className='negativeButton'
+          />
         </div>
 
-        <div>
+        <div className='styleButton'>
           <input
             type='button'
             value='NORMAL'
-            onClick={() => onBlockStyleClick('unstyled')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'unstyled')}
           />
           <input
             type='button'
             value='H1'
-            onClick={() => onBlockStyleClick('header-one')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'header-one')}
           />
           <input
             type='button'
             value='H2'
-            onClick={() => onBlockStyleClick('header-two')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'header-two')}
           />
           <input
             type='button'
             value='H3'
-            onClick={() => onBlockStyleClick('header-three')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'header-three')}
           />
         </div>
 
-        <div>
+        <div className='styleButton'>
           <input
             type='button'
             value='bold'
-            onClick={() => onInlineStyleClick('BOLD')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'BOLD')}
           />
           <input
             type='button'
             value='italic'
-            onClick={() => onInlineStyleClick('ITALIC')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'ITALIC')}
           />
           <input
             type='button'
             value='underline'
-            onClick={() => onInlineStyleClick('UNDERLINE')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'UNDERLINE')}
           />
           <input
             type='button'
             value='code'
-            onClick={() => onInlineStyleClick('CODE')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'CODE')}
           />
         </div>
 
@@ -194,17 +207,21 @@ const QuestionEditor = () => {
           <input
             type='button'
             value='undo'
-            disabled={disableUndo} 
+            disabled={editorState.getUndoStack().size <= 0} 
             onClick={onUndoClick}
           />
           <input
             type='button'
             value='redo'
-            disabled={disableRedo} 
+            disabled={editorState.getRedoStack().size <= 0} 
             onClick={onRedoClick}
           />
         </div>
       
+        <div className='attachment'>
+          {attachment ? <img src={attachment} alt='' width='400px' /> : <></>}
+        </div>
+
         <Editor
           placeholder='내용을 입력하세요'
           editorState={editorState}
@@ -212,18 +229,22 @@ const QuestionEditor = () => {
           handleKeyCommand={handleKeyCommand}
         />
 
-        <input
-          type='reset'
-          value='cancel'
-          onClick={onCancel}
-        />
-        <input
-          type='submit'
-          value='submit'
-        />
-      </form>   
+        <div>
+          <input
+            type='reset'
+            value='취소'
+            onClick={onCancel}
+            className='negativeButton'
+          />
+          <input
+            type='submit'
+            value='질문하기'
+            className='positiveButton'
+          />
+        </div>
+      </form>
     </>
   );
-}
+};
 
 export default QuestionEditor;

@@ -1,20 +1,44 @@
-import { useState } from 'react';
-import { dbService, storageService } from '../../firebase'
-import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, getDownloadURL, uploadString } from 'firebase/storage';
-import { v4 } from 'uuid';
-import { Editor, EditorState, RichUtils, convertToRaw } from 'draft-js';
+import { useEffect, useState } from 'react';
+import { dbService } from '../../firebase'
+import { doc, getDoc } from 'firebase/firestore';
+import { Editor, EditorState, RichUtils, convertFromRaw } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { contentTest } from '../../modules/contentTest';
+import { addAnswer } from '../../modules/addPost';
+import { updateAnswer } from '../../modules/updatePost';
+import Viewer from '../viewer/Viewer';
 
-const AnswerEditor = ({ parentId }) => {
+const AnswerEditor = ({ answerId = null, parentId }) => {
+  const [dataFetched, setDataFetched] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [attachment, setAttachment] = useState('');
 
+  useEffect(() => {
+    // fetch data
+    const getData = async () => {
+      const answerRef = doc(dbService, `answer/${answerId}`);
+      const answerObj = (await getDoc(answerRef)).data();
+
+      setEditorState(EditorState.createWithContent(
+        convertFromRaw(answerObj.content)
+      ));
+      setAttachment(answerObj.attachmentUrl);
+
+      setDataFetched(true);
+    };
+
+    // 수정하는 경우 data fetch
+    if (answerId) {
+      getData();
+    }
+  }, [answerId, dataFetched]);
+
+  // handle change on editor state
   const onChange = (editorState) => {
     setEditorState(editorState);
   };
 
+  // handle attachment
   const onAttachChange = (event) => {
     const { target: { files } } = event;
     const file = files[0];
@@ -46,10 +70,7 @@ const AnswerEditor = ({ parentId }) => {
     return 'not-handled';
   };
 
-  // handle undo and redo button
-  const disableUndo = (editorState.getUndoStack().size <= 0);
-  const disableRedo = (editorState.getRedoStack().size <= 0);
-
+  // handle undo and redo
   const onUndoClick = () => {
     onChange(EditorState.undo(editorState));
   };
@@ -59,12 +80,14 @@ const AnswerEditor = ({ parentId }) => {
   };
 
   // inline text styling
-  const onInlineStyleClick = (type) => {
+  const onInlineStyleClick = (event, type) => {
+    event.preventDefault();
     onChange(RichUtils.toggleInlineStyle(editorState, type));
   };
 
   // block styling
-  const onBlockStyleClick = (type) => {
+  const onBlockStyleClick = (event, type) => {
+    event.preventDefault();
     onChange(RichUtils.toggleBlockType(editorState, type));
   };
 
@@ -83,44 +106,14 @@ const AnswerEditor = ({ parentId }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    if (contentTest(editorState)) {
-      const parentRef = doc(dbService, `question/${parentId}`);
-      const parentObj = (await getDoc(parentRef)).data();
-    
-      const answerObj = {
-        type: 'answer',
-        subject: parentObj.subject,
-        parentId: parentId,
-        parentType: 'question',
-        content: convertToRaw(editorState.getCurrentContent()),
-        attachmentUrl: null,
-        createdAt: Date.now(),
-        editedAt: null,
-        userId: null,  // 나중에 유저 아이디 추가
-        comments: [],
-      };
-    
-      const answer = await addDoc(collection(dbService, 'answer'), answerObj);
-      updateDoc(parentRef, {
-        answers: [...parentObj.answers, answer.id],
-      });
+    if (answerId && contentTest(editorState)) {
+      await updateAnswer(answerId, editorState, attachment);
+      alert('답변이 수정되었습니다');
 
-      if (attachment) {
-        const attachmentRef = ref(storageService, `${v4()}`);
-        await uploadString(attachmentRef, attachment, 'data_url');
-        const attachmentUrl = await getDownloadURL(attachmentRef);
-        
-        await updateDoc(answer, {
-          attachmentUrl: attachmentUrl,
-        });
-      }
-    
-      if (!parentObj.isAnswered) {
-        updateDoc(parentRef, {
-          isAnswered: true,
-        });
-      }
-
+      setEditorState(EditorState.createEmpty());
+      setAttachment('');
+    } else if (contentTest(editorState)) {
+      await addAnswer(parentId, editorState, attachment);
       alert('답변이 게시되었습니다');
 
       setEditorState(EditorState.createEmpty());
@@ -142,22 +135,22 @@ const AnswerEditor = ({ parentId }) => {
           <input
             type='button'
             value='NORMAL'
-            onClick={() => onBlockStyleClick('unstyled')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'unstyled')}
           />
           <input
             type='button'
             value='H1'
-            onClick={() => onBlockStyleClick('header-one')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'header-one')}
           />
           <input
             type='button'
             value='H2'
-            onClick={() => onBlockStyleClick('header-two')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'header-two')}
           />
           <input
             type='button'
             value='H3'
-            onClick={() => onBlockStyleClick('header-three')}
+            onMouseDown={(event) => onBlockStyleClick(event, 'header-three')}
           />
         </div>
 
@@ -165,22 +158,22 @@ const AnswerEditor = ({ parentId }) => {
           <input
             type='button'
             value='bold'
-            onClick={() => onInlineStyleClick('BOLD')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'BOLD')}
           />
           <input
             type='button'
             value='italic'
-            onClick={() => onInlineStyleClick('ITALIC')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'ITALIC')}
           />
           <input
             type='button'
             value='underline'
-            onClick={() => onInlineStyleClick('UNDERLINE')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'UNDERLINE')}
           />
           <input
             type='button'
             value='code'
-            onClick={() => onInlineStyleClick('CODE')}
+            onMouseDown={(event) => onInlineStyleClick(event, 'CODE')}
           />
         </div>
 
@@ -188,15 +181,19 @@ const AnswerEditor = ({ parentId }) => {
           <input
             type='button'
             value='undo'
-            disabled={disableUndo} 
+            disabled={editorState.getUndoStack().size <= 0} 
             onClick={onUndoClick}
           />
           <input
             type='button'
             value='redo'
-            disabled={disableRedo} 
+            disabled={editorState.getRedoStack().size <= 0} 
             onClick={onRedoClick}
           />
+        </div>
+
+        <div className='attachment'>
+          {attachment ? <img src={attachment} alt='' width='400px' /> : <></>}
         </div>
       
         <Editor
@@ -208,12 +205,12 @@ const AnswerEditor = ({ parentId }) => {
 
         <input
           type='reset'
-          value='cancel'
+          value='취소'
           onClick={onCancel}
         />
         <input
           type='submit'
-          value='submit'
+          value='답변하기'
         />
       </form>
     </>
