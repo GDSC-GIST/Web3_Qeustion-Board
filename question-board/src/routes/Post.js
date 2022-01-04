@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import TextEditor from '../components/textEditor/TextEditor'
 import Viewer from '../components/viewer/Viewer';
 import AnswerViewer from '../components/viewer/AnswerViewer';
-import CommentViewer from '../components/viewer/CommentViewer';
+import CommentsViewer from '../components/viewer/CommentsViewer';
 
 const Post = ({ questionId }) => {
   const [dataFetched, setDataFetched] = useState(false);
@@ -28,27 +28,27 @@ const Post = ({ questionId }) => {
         <Viewer type='question' postId={questionId} />
         {dataFetched ? (
           questionObj.comments.length ? 
-            <CommentViewer comments={questionObj.comments} /> : 
+            <CommentsViewer comments={questionObj.comments} /> : 
             <></>) : 
           <></>
         }
-        <TextEditor type='qComment' />
+        <TextEditor type='comment' parentId={questionId} />
       </div>
 
       <div>
         {dataFetched ? (
           questionObj.answers.length ?
             questionObj.answers.map((answerId) => 
-              <>
-                <AnswerViewer answerId={answerId} key={answerId}/>
-                <TextEditor type='comment' key={'TextEditor'+answerId}/>
-              </>
+              <div key={answerId}>
+                <AnswerViewer answerId={answerId} />
+                <TextEditor type='comment' parentId={answerId} />
+              </div>
             ) : <></>) : 
           <></>
         }
       </div>
 
-      <TextEditor type='answer' />
+      <TextEditor type='answer' parentId={questionId} />
     </>
   );
 };  
