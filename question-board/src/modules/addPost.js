@@ -34,7 +34,7 @@ const addAnswer = async (parentId, editorState, attachment) => {
   // 부모 객체 answers(list)에 추가하고 답변 완료로 수정
   await updateDoc(parentRef, {
     isAnswered: true,
-    answers: [...parentObj.answers, answer.id()],
+    answers: [...parentObj.answers, answer.id],
   });
 
   return answer
@@ -65,7 +65,7 @@ const addComment = async (parentId, editorState) => {
 
   // 부모 객체의 comments(list) 업데이트
   await updateDoc(parentRef, {
-    comments: [...parentObj.comments, comment.id()],
+    comments: [...parentObj.comments, comment.id],
   });
 
   return comment;
