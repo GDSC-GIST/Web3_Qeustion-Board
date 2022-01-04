@@ -35,7 +35,9 @@ const CommentEditor = ({ commentId = null, parentId }) => {
 
     if (cancel) {
       if (commentId) { // 수정하는 경우
+        setEditorState(EditorState.createEmpty());
         // 새로고침
+
       } else {
         setEditorState(EditorState.createEmpty());
       }
@@ -52,13 +54,13 @@ const CommentEditor = ({ commentId = null, parentId }) => {
       alert('댓글이 수정되었습니다');
 
       setEditorState(EditorState.createEmpty());
-      // 원래 페이지 리다이렉트
+      // 새로고침
     } else if (contentTest(editorState)) {
       await addComment(parentId, editorState);
       alert('댓글이 게시되었습니다');
 
       setEditorState(EditorState.createEmpty());
-      // 원래 페이지 리다이렉트
+      // 새로고침
     }
   }
 
