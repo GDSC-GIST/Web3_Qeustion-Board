@@ -99,7 +99,11 @@ const QuestionEditor = ({ questionId = null }) => {
     const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
 
     if (cancel) {
-      // 글 작성울 취소할 경우 이전 페이지로 연결
+      if (questionId) {
+        //새로고침
+      } else {
+        setEditorState(EditorState.createEmpty());
+      }
     }
   };
 

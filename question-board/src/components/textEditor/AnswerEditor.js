@@ -93,10 +93,14 @@ const AnswerEditor = ({ answerId = null, parentId }) => {
 
   // cancel
   const onCancel = (event) => {
-    const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
+    const cancel = window.confirm('취소하시겠습니까?');
 
     if (cancel) {
-      onChange(EditorState.createEmpty());
+      if (answerId) {
+        // 새로고침
+      } else {
+        setEditorState(EditorState.createEmpty());
+      }
     } else {
       event.preventDefault();
     }

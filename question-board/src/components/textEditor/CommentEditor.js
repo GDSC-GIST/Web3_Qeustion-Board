@@ -24,17 +24,21 @@ const CommentEditor = ({ commentId = null, parentId }) => {
       setDataFetched(true);
     };
 
-    // 수정하는 경우 Data fetch
+    // 수정하는 경우 data fetch
     if (commentId) {
       getData();
     }
   }, [commentId, dataFetched]);
 
   const onCancel = (event) => {
-    const cancel = window.confirm('작성을 취소하시겠습니까?\n지금까지 작성한 내용은 저장되지 않습니다.');
+    const cancel = window.confirm('취소하시겠습니까?');
 
     if (cancel) {
-      setEditorState(EditorState.createEmpty());
+      if (commentId) { // 수정하는 경우
+        // 새로고침
+      } else {
+        setEditorState(EditorState.createEmpty());
+      }
     } else {
       event.preventDefault();
     }
