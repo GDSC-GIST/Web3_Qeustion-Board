@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { dbService } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import TextEditor from '../components/textEditor/TextEditor'
-import Viewer from '../components/viewer/Viewer';
-import AnswerViewer from '../components/viewer/AnswerViewer';
-import CommentsViewer from '../components/viewer/CommentsViewer';
+import PostViewer from '../components/viewer/PostViewer';
 
 const Post = ({ questionId }) => {
   const [dataFetched, setDataFetched] = useState(false);
@@ -23,33 +21,28 @@ const Post = ({ questionId }) => {
   }, [questionId, dataFetched]);
 
   return (
-    <>
-      <div>
-        <Viewer type='question' postId={questionId} />
-        {dataFetched ? (
-          questionObj.comments.length ? 
-            <CommentsViewer comments={questionObj.comments} /> : 
-            <></>) : 
-          <></>
-        }
-        <TextEditor type='comment' parentId={questionId} />
-      </div>
+    <div className='col'>
+      <PostViewer type='question' postId={questionId} />
 
-      <div>
+      <div className='mt-5'>
+        <div className='row mb-3'>
+          <h3>답변</h3>
+        </div>
+        
         {dataFetched ? (
           questionObj.answers.length ?
             questionObj.answers.map((answerId) => 
-              <div key={answerId}>
-                <AnswerViewer answerId={answerId} />
-                <TextEditor type='comment' parentId={answerId} />
-              </div>
+              <PostViewer type='answer' postId={answerId} key={answerId}/>
             ) : <></>) : 
           <></>
         }
       </div>
 
-      <TextEditor type='answer' parentId={questionId} />
-    </>
+      <div className='mt-5'>
+        <TextEditor type='answer' />
+      </div>
+      
+    </div>
   );
 };  
 

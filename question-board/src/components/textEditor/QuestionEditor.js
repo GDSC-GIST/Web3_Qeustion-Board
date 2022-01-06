@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { dbService } from '../../firebase'
 import { doc, getDoc } from 'firebase/firestore';
 import { Editor, EditorState, RichUtils, convertFromRaw } from 'draft-js';
-import 'draft-js/dist/Draft.css';
 import { questionTest } from '../../modules/contentTest';
 import { addQuestion } from '../../modules/addPost';
 import { updateQuestion } from '../../modules/updatePost';
+import 'draft-js/dist/Draft.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import '../../index.css'
 
 const QuestionEditor = ({ questionId = null }) => {
   const [dataFetched, setDataFetched] = useState(false);
@@ -35,6 +37,7 @@ const QuestionEditor = ({ questionId = null }) => {
     }
   }, [questionId, dataFetched])
 
+  // handle attachment
   const onAttachChange = (event) => {
     const { target: { files } } = event;
     const file = files[0];
@@ -51,6 +54,7 @@ const QuestionEditor = ({ questionId = null }) => {
   };
 
   const onAttachRemove = () => {
+    document.getElementById('questionAttachment').value = '';
     setAttachment('');
   };
 
@@ -111,143 +115,188 @@ const QuestionEditor = ({ questionId = null }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    if (questionId && questionTest(editorState)) { // 수정하는 경우
-      await updateQuestion(questionId, editorState, attachment);
-      alert('질문이 수정되었습니다');
-
-    } else if (questionTest(editorState)) { // 새로 만드는 경우
-      await addQuestion(editorState, attachment);
-      alert('질문이 게시되었습니다');
-      // 질문 페이지로 연결
+    if (questionTest(editorState)) {
+      if (questionId) { // 수정하는 경우
+        await updateQuestion(questionId, editorState, attachment);
+        alert('질문이 수정되었습니다');
+  
+      } else { // 새로 만드는 경우
+        await addQuestion(editorState, attachment);
+        alert('질문이 게시되었습니다');
+        // 질문 페이지로 연결
+      }
     }
   };
   
   return (
-    <>
-      <form onSubmit={onSubmit} className='postEditor'>
-        <div className='select'>
-          <select id='grade'>
-            <option value='' defaultValue>과정 선택</option>
+    <form onSubmit={onSubmit} className='col'>
+      <div className='row row-col-3 my-2'>
+        <div className='col-2'>
+          <select id='grade' className='form-select form-select-sm'>
+            <option value='' defaultValue>과정</option>
             <option value='초등'>초등</option>
             <option value='중등'>중등</option>
           </select>
-          <select id='subject'>
-            <option value='' defaultValue>과목 선택</option>
+        </div>
+          
+        <div className='col-2'>
+          <select id='subject'className='form-select form-select-sm'>
+            <option value='' defaultValue>과목</option>
             <option value='국어'>국어</option>
             <option value='영어'>영어</option>
             <option value='수학'>수학</option>
             <option value='과학'>과학</option>
           </select>
+        </div>
+
+        <div className='col'>
           <input 
             id='questionTitle' 
             type='text'
             placeholder='제목을 입력하세요'
+            className='form-control form-control-sm'
           />
-        </div>
+        </div>       
+      </div>
 
-        <div className='attachButton'>
+      <div className='row my-2'>
+        <div className='col'>
           <input 
             id='questionAttachment' 
             type='file' 
             accept='image/*' 
             onChange={onAttachChange} 
-          />
-          <input 
-            type='button' 
-            value='삭제' 
-            onClick={onAttachRemove} 
-            disabled={!attachment} 
-            className='negativeButton'
+            className='form-control form-control-sm'
           />
         </div>
+        
 
-        <div className='styleButton'>
-          <input
-            type='button'
-            value='NORMAL'
-            onMouseDown={(event) => onBlockStyleClick(event, 'unstyled')}
-          />
-          <input
-            type='button'
-            value='H1'
-            onMouseDown={(event) => onBlockStyleClick(event, 'header-one')}
-          />
-          <input
-            type='button'
-            value='H2'
-            onMouseDown={(event) => onBlockStyleClick(event, 'header-two')}
-          />
-          <input
-            type='button'
-            value='H3'
-            onMouseDown={(event) => onBlockStyleClick(event, 'header-three')}
-          />
-        </div>
+        {attachment ? 
+          <div className='col-2 text-end'>
+            <button  
+              onClick={onAttachRemove} 
+              className='btn btn-light btn-sm'
+            >삭제</button>
+          </div> :
+          <></>
+        }
+      </div>
 
-        <div className='styleButton'>
-          <input
-            type='button'
-            value='bold'
-            onMouseDown={(event) => onInlineStyleClick(event, 'BOLD')}
-          />
-          <input
-            type='button'
-            value='italic'
-            onMouseDown={(event) => onInlineStyleClick(event, 'ITALIC')}
-          />
-          <input
-            type='button'
-            value='underline'
-            onMouseDown={(event) => onInlineStyleClick(event, 'UNDERLINE')}
-          />
-          <input
-            type='button'
-            value='code'
-            onMouseDown={(event) => onInlineStyleClick(event, 'CODE')}
-          />
-        </div>
+      {attachment ? 
+        <div className='row row-col-2 my-2'>
+          <div className='col-3 align-self-start'></div>
+          <div className='col-6'>
+            <img 
+              src={attachment} 
+              alt='' 
+              className='img-thumbnail' 
+            />
+          </div>
+        </div> : 
+        <></>
+      }
 
-        <div className='styleButton'>
-          <input
-            type='button'
-            value='undo'
-            disabled={editorState.getUndoStack().size <= 0} 
-            onClick={onUndoClick}
-          />
-          <input
-            type='button'
-            value='redo'
-            disabled={editorState.getRedoStack().size <= 0} 
-            onClick={onRedoClick}
-          />
-        </div>
-      
-        <div className='attachment'>
-          {attachment ? <img src={attachment} alt='' width='400px' /> : <></>}
-        </div>
+      <div className='btn-toolbar' role='toolbar' aria-label='text editor toolbar'>
+        <div >
+          <div className='btn-group btn-group-sm' role='group' aria-label='block style'>
+            <button
+              onMouseDown={(event) => onBlockStyleClick(event, 'unstyled')}
+              className='btn btn-light'
+            >NORMAL</button>
 
-        <Editor
-          placeholder='내용을 입력하세요'
-          editorState={editorState}
-          onChange={onChange}
-          handleKeyCommand={handleKeyCommand}
-        />
+            <button
+              onMouseDown={(event) => onBlockStyleClick(event, 'header-one')}
+              className='btn btn-light'
+            >H1</button>
+
+            <button
+              onMouseDown={(event) => onBlockStyleClick(event, 'header-two')}
+              className='btn btn-light'
+            >H2</button>
+
+            <button
+              onMouseDown={(event) => onBlockStyleClick(event, 'header-three')}
+              className='btn btn-light'
+            >H3</button>
+          </div>
+        </div>
 
         <div>
+          <div className='btn-group btn-group-sm' role='group' aria-label='inline style'>
+            <button
+              type='button'
+              onMouseDown={(event) => onInlineStyleClick(event, 'BOLD')}
+              className='btn btn-light'
+            >BOLD</button>
+
+            <button
+              type='button'
+              onMouseDown={(event) => onInlineStyleClick(event, 'ITALIC')}
+              className='btn btn-light'
+            >ITALIC</button>
+
+            <button
+              type='button'
+              value='underline'
+              onMouseDown={(event) => onInlineStyleClick(event, 'UNDERLINE')}
+              className='btn btn-light'
+            >UNDERLINE</button>
+
+            <button
+              type='button'
+              value='code'
+              onMouseDown={(event) => onInlineStyleClick(event, 'CODE')}
+              className='btn btn-light'
+            >CODE</button>
+          </div>
+        </div>
+        
+        <div className=''>
+          <div className='btn-group btn-group-sm' role='group' aria-label='undo and rdo'>
+            <button
+              type='button'
+              onClick={onUndoClick}
+              disabled={editorState.getUndoStack().size <= 0} 
+              className='btn btn-light'
+            >UNDO</button>
+
+            <button
+              type='button'
+              onClick={onRedoClick}
+              disabled={editorState.getRedoStack().size <= 0} 
+              className='btn btn-light'
+            >REDO</button>
+          </div>
+        </div>
+      </div>
+
+      <div className='text-box-border mt-2 mb-3'>
+        <div className='text-wrap'>
+          <Editor
+            placeholder='내용을 입력하세요'
+            editorState={editorState}
+            onChange={onChange}
+            handleKeyCommand={handleKeyCommand}
+            className='overflow-auto'
+          />
+        </div>
+      </div>
+      
+
+      <div className='text-center mt-3 mb-5'>
           <input
             type='reset'
             value='취소'
             onClick={onCancel}
-            className='negativeButton'
-          />
+            className='btn btn-light text-end'
+          />{' '}
           <input
             type='submit'
             value='질문하기'
-            className='positiveButton'
-          />
-        </div>
-      </form>
-    </>
+            className='btn btn-primary'
+          />         
+      </div>
+    </form>
   );
 };
 

@@ -4,6 +4,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { dbService } from '../../firebase';
 import TextEditor from '../textEditor/TextEditor';
 import deletePost from '../../modules/deletePost';
+import timestampToDate from '../../modules/timestampToDate';
+import 'draft-js/dist/Draft.css';
+import 'bootstrap/dist/css/bootstrap.css';
 
 const Viewer = ({ type, postId }) => {
   const [dataFetched, setDataFetched] = useState(false);
@@ -52,36 +55,71 @@ const Viewer = ({ type, postId }) => {
     <>
       {editing ? <TextEditor type={type} postId={postId}/> :
         <>
-          {(type === 'question') ? (
+          {(type === 'question') ? 
             <>
-              {postObj.grade ? <p>{postObj.grade + '/' + postObj.subject}</p> : <></>}
-              {postObj.grade ? <p>{postObj.title}</p> : <></>}
-
-              <div>
-                <button onClick={toggleEdit}>수정</button>
-                <button onClick={onDeleteClick}>삭제</button>
+              <div className='row'>
+                {postObj.grade ?
+                  <p className=''>
+                    {postObj.grade + '/' + postObj.subject }
+                  </p> :
+                  <></>
+                }
               </div>
-            </>) : 
-            <></>
-          }
-    
-          {postObj.attachmentUrl ? <img src={postObj.attachmentUrl} alt='' width='300px'/> : <></>}
-          
-          <Editor
-            editorState={editorState}
-            onChange={onChange}
-            readOnly={true} 
-          />
 
-          {(type !== 'question') ? 
-            <div>
-              <button onClick={toggleEdit}>수정</button>
-              <button onClick={onDeleteClick}>삭제</button>
-            </div> : 
+              <div className='row mb-2'>
+                {postObj.title ? 
+                  <h3 className='text-start'>
+                    {postObj.title}
+                  </h3> : 
+                  <></>
+                }
+              </div>
+            </> :
             <></>
           }
+
+          <div className='row'>
+            <div className='col'>
+              {/*유저 프로필 사진과 닉네임*/}
+
+              {postObj.createdAt ? 
+                <p className='text-muted'>
+                  {timestampToDate(postObj.createdAt)}
+                </p> : 
+              <></>
+              }
+            </div>
+            
+            <div className='col text-end'>
+              <button 
+                onClick={toggleEdit}
+                className='btn btn-light btn-sm'
+              >수정</button>{' '}
+              <button 
+                onClick={onDeleteClick}
+                className='btn btn-light btn-sm'
+              >삭제</button>
+            </div>
+          </div>   
+        
+          {postObj.attachmentUrl ? 
+            <img 
+              src={postObj.attachmentUrl} 
+              alt='' 
+              className='img-fluid my-2'
+            /> : 
+            <></>
+          }
+
+          <div className='mb-3'>
+            <Editor
+              editorState={editorState}
+              onChange={onChange}
+              readOnly={true} 
+            />
+          </div>
         </>
-      }
+      }   
     </>
   );
 };
