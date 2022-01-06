@@ -1,10 +1,14 @@
 import Viewer from './Viewer';
+import 'bootstrap/dist/css/bootstrap.css';
 
 const CommentsViewer = ({ comments }) => {
   return (
     <>
       {comments.map((commentId) => 
-        <Viewer type='comment' postId={commentId} key={commentId} />)
+        <div key={commentId}>
+          <hr className='text-muted'></hr>
+          <Viewer type='comment' postId={commentId} />
+        </div>)
       }
     </>
   );

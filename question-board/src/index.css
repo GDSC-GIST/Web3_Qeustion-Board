@@ -1,0 +1,13 @@
+.text-box-border {
+  min-height: 300px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.text-box-border-sm {
+  min-height: 100px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px;
+}
