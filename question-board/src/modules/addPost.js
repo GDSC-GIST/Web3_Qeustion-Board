@@ -4,9 +4,11 @@ import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { convertToRaw } from 'draft-js';
 import { v4 } from 'uuid';
 
+// 답변 업로드
 const addAnswer = async (parentId, editorState, attachment) => {
   let attachmentUrl = ''
   if (attachment) {
+    // 첨부파일이 있는 경우 storage에 업로드 후 다운로드 url 가져오기
     const attachmentRef = ref(storageService, `${v4()}`);
     await uploadString(attachmentRef, attachment, 'data_url');
     attachmentUrl = await getDownloadURL(attachmentRef);
@@ -29,6 +31,7 @@ const addAnswer = async (parentId, editorState, attachment) => {
     comments: [],
   };
   
+  // firestore에 업로드
   const answer = await addDoc(collection(dbService, 'answer'), answerObj);
 
   // 부모 객체 answers(list)에 추가하고 답변 완료로 수정
@@ -37,16 +40,19 @@ const addAnswer = async (parentId, editorState, attachment) => {
     answers: [...parentObj.answers, answer.id],
   });
 
-  return answer
+  return answer;
 };
 
+// 댓글 업로드
 const addComment = async (parentId, editorState) => {
+  // 부모의 type에 상관 없이 question과 answer collction에서 ref, obj 가져옴
   const questionRef = doc(dbService, `question/${parentId}`);
   const questionObj = (await getDoc(questionRef)).data();
 
   const answerRef = doc(dbService, `answer/${parentId}`);
   const answerObj = (await getDoc(answerRef)).data();
 
+  // 부모 객체로 값이 반환된 ref, obj사용
   const parentRef = questionObj ? questionRef : answerRef;
   const parentObj = questionObj ? { ...questionObj } : { ...answerObj };
 
@@ -61,6 +67,7 @@ const addComment = async (parentId, editorState) => {
     userId: null,  // 나중에 유저 아이디 추가
   };
 
+  // firestore에 업로드
   const comment = await addDoc(collection(dbService, 'comment'), commentObj);
 
   // 부모 객체의 comments(list) 업데이트
@@ -71,10 +78,11 @@ const addComment = async (parentId, editorState) => {
   return comment;
 }
 
+// 질문 업로드
 const addQuestion = async (editorState, attachment) => {
   let attachmentUrl = ''
   if (attachment) {
-    // 첨부파일이 있는 경우 Storage에 업로드
+    // 첨부파일이 있는 경우 storage에 업로드 후 다운로드 url 가져오기
     const attachmentRef = ref(storageService, `${v4()}`);
     await uploadString(attachmentRef, attachment, 'data_url');
     attachmentUrl = await getDownloadURL(attachmentRef);
@@ -96,6 +104,7 @@ const addQuestion = async (editorState, attachment) => {
     answers: [],
   };
 
+  // firestore에 업로드
   return await addDoc(collection(dbService, 'question'), questionObj);
 };
 
