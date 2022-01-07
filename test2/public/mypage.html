@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="titleCheck">My Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="main.css" rel="stylesheet">
+</head>
+
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/index.html">Question Board</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="/mypage.html">마이페이지</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="joinmenu" href="/login.html">가입</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="loginmenu" href="/signup.html">로그인</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container mt-3">
+
+      </div>
+
+      <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-database.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6rk_Vp7bwgw7l02ir3nutdvuhM435lZQ",
+            authDomain: "question-board-e386b.firebaseapp.com",
+            projectId: "question-board-e386b",
+            storageBucket: "question-board-e386b.appspot.com",
+            messagingSenderId: "113653158483",
+            appId: "1:113653158483:web:b16bb850851ae01ed5eca6"
+          };
+        firebase.initializeApp(firebaseConfig);
+        firebaseEmailAuth = firebase.auth();
+        const firebaseDatabase = firebase.database();
+        var userInfo;
+        var name;
+        var comment;
+        var url;
+        var loginUserKey;
+    </script>
+
+    <!-- userKey 비교하기. 현재 로그인한 사람의 userkey면 마이 페이지 리스트 출력, 다른 사람이면 다른 사람 이름+ Page 출력-->
+    <div class="container">
+        <h1>mypage</h1>
+        <br>
+        <!-- 프로필 사진 부분 -->
+        <div class="media">
+            <div class="media-left">
+                <img id="myimage" src="https://www.w3schools.com/bootstrap/img_avatar3.png" class"media-object" style="width:60px">
+        <!-- file-->
+                <div id="showfile">
+                </div>
+
+            <div class="media-body">
+                <h4 class="media-heading" id="nicname">닉네임</h4>
+                <div id="statetxtP">
+                    <p id="statetxt"></p>
+                </div>
+            </div>
+            <br>
+
+            <div align="right">
+                <button id="changeBtn" type="button" class="btn btn-warning">수정하기</button>
+            </div>
+        </div>
+
+        <!-- 리스트 출력 -->
+        <div class="container">
+            <h3>나의 질문 리스트</h3>
+            <br>
+            <!-- 붙일 곳 -->
+            <div class="cmtList"></div>
+        </div>
+        
+
+        <hr>
+
+        <br>
+
+        <script>
+            $(document).ready(function() {
+                // 세션체크 함수 먼저
+                userSessionCheck();
+            });
+
+            // 수정 버튼이 click 되기를 대기하는 이벤트 함수
+            $(document).on('click', '#changeBtn', function() {
+                changeButtonAction();
+            });
+
+            // 수정, 저장하기 눌렀을 때 작동하는 함수
+            function changeButtonAction() {
+                console.log("버튼이 눌렸습니다");
+                var changeBtn = document.getElementById("changeBtn");
+                var changeBtnText = changeBtn.textContent; // 버튼의 text 제목을 가져온다
+
+                // 버튼이 수정하기 버튼이면
+                if (changeBtnText == "수정하기") {
+                    console.log("수정하기 버튼 - input file 나타나고 - p 태그 대신 input text 태그로 변경시키기 - 저장버튼 활성화 작업을 시작합니다");
+
+                    // input file 붙여주기 - id가 fileButton인 filretype의 엘리먼트 븉여줌
+                    var html = "<input type=\"file\" id=\"fileButton\" />";
+                    $("#showfile").append(html);
+                    console.log("input file 붙여주기 완료");
+
+                    // 기존에 것 없애고 새로운 Input text 붙이기
+                    var parent = document.getElementById("statetxtP");
+                    var child = document.getElementById("statetxt");
+                    parent.removeChild(child);
+                    console.log("p 태그 삭제 완료");
+
+                    // 새로 적은 textarea 창 활성화
+                    var newTextarea = "<textarea class=\"form-control\" rows=\"3\" id=\" comment\"></textarea>";
+                    $("#statetxtP").append(newTextarea);
+                    console.log("새로운 textare 창 활성화 완료");
+
+                    // 저장하기 버튼 활성화
+                    changeBtn.textContent = "저장하기";
+                    changeBtn.className = "btn btn-success"; // bootstrap 속성 변경
+                } else {
+                    console.log("저장 버튼 - input file 사라지게 input text태그 사라지고 p 태그에 넣고 저장버튼 비활성화 수정버튼 활성화를 시작합니다");
+
+                    //저장하기 함수 호출
+                    console.log("저장하기 함수 호출");
+                    var saveCheck = imageStateMsgAllSave();
+
+                    if (saveCheck) {
+                        // 활성화된 Input file 객체 삭제
+                        var parent = document.getElementById("showfile");
+                        var child = document.getElementById("fileButton");
+                        parent.removeChild(child);
+                        console.log("활성화된 Input file 객체 삭제 완료");
+
+                        // input text area 객체 삭제해주기
+                        var parentTwo = document.getElementById("statetxtP");
+                        var childTwo = document.getElementById("comment");
+                        parentTwo.removeChild(childTwo);
+                        console.log("활성화된 input text area 객체 삭제 완료");
+
+                        // p 태그에 수정한 한줄 메세지 넣어주기
+                        var htmlThree = "<p id=\"statetxt\">" + comment + "</p>";
+                        $("#statetxtP").append(htmlThree);
+                        console.log("한 줄 메세지가 들어있는 p 태그 활성화");
+
+                        changeBtn.textContent = "수정하기";
+                        changeBtn.className = "btn btn-default";
+
+                        console.log("저장되었습니다");
+                    }
+                }
+            }
+
+            function imageStateMsgAllSave() {
+                console.log("imageStateMsgAllSave로 들어왔습니다");
+
+                // 파일을 파이어 베이스 스토리지에 저장하는 로직
+                var fileButton = document.getElementById("fileButton");
+                comment = document.getElementById("comment").value;
+                alert(comment);
+                // 수정버튼을 눌러서 fileButton 객체가 생기면 작동
+                if (fileButton) {
+                    console.log("fileButton.addEventListener('change', function(e){ 함수 호출 - 들어왔습니다");
+                    var file = fileButton.files[0];
+                    // 현재 유저 키를 파일 이름으로 지정
+                    var storageRef = firebase.storage().ref(loginUserKey);
+                    var task = storageRef.put(file);
+                    task.then(function (snapshot) {
+                        url = snapshot.downloadURL;
+                        console.log("파이어베이스 스토리지에 저장된 주소 = "+url);
+                        // 파이어베이스에 이미지 저장 후 그 Url 갖고 와서 Img 태그에 적용
+                        document.querySelector('#myimage').src = url;
+
+                        // 여기에 User 레퍼런스에 사진 url wjwkd
+                        // 선택된 키가 있으면 수정
+                        userRef = firebaseDatabase.ref('users/'+loginUserKey);
+                        userRef.update({
+                            createtime: currentTime,
+                            name: name,
+                            imgUrl: url,
+                            comment: comment
+                        });
+                        console.log("파이어베이스 데이터베이서 user 레퍼런스에 성공적으로 저장 완료");
+                        alert("성공적으로 변경되었습니다");
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                        return;
+                    });
+                }
+                return true;
+            }
+        </script>
+
+        <script src="./js/time.js"></script>
+
+        <script src="./js/sessionCheck.js"></script>
+
+</body>
+</html>
