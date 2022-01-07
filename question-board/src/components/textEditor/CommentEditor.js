@@ -9,6 +9,7 @@ import 'draft-js/dist/Draft.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import '../../index.css'
 
+// 댓글용 텍스트 에디터
 const CommentEditor = ({ commentId = null, parentId }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
@@ -33,14 +34,16 @@ const CommentEditor = ({ commentId = null, parentId }) => {
   }, [commentId, dataFetched]);
 
   const onCancel = (event) => {
+    event.preventDefault();
+
     const cancel = window.confirm('취소하시겠습니까?');
 
     if (cancel) {
-      if (commentId) { // 수정하는 경우
-        setEditorState(EditorState.createEmpty());
-        // 새로고침
-
+      if (commentId) { 
+        // 수정을 취소한 경우 새로고침
+        document.location.reload();
       } else {
+        // 작성을 취소한 경우 텍스트창 비우기
         setEditorState(EditorState.createEmpty());
       }
     } else {
@@ -52,13 +55,19 @@ const CommentEditor = ({ commentId = null, parentId }) => {
     event.preventDefault();
 
     if (contentTest(editorState)) {
-      if (commentId) { // 수정하는 경우
+      if (commentId) { 
+        // 수정하는 경우 수정 사항 업로드
         await updateComment(commentId, editorState);
         alert('댓글이 수정되었습니다');
+
+        // 페이지 새로고침
         document.location.reload(true);
-      } else { // 새로 만드는 경우
+      } else { 
+        // 새로 작성하는 경우 firestore에 업로드
         await addComment(parentId, editorState);
         alert('댓글이 게시되었습니다');
+
+        // 페이지 새로고침
         document.location.reload(true);
       }
     }

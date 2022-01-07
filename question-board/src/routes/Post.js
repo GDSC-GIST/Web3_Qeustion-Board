@@ -9,6 +9,7 @@ const Post = ({ questionId }) => {
   const [questionObj, setQuestionObj] = useState({});
 
   useEffect(() => {
+    // data fetch
     const getData = async () => {
       const questionRef = doc(dbService, `question/${questionId}`);
       const newQuestionObj = (await getDoc(questionRef)).data();
@@ -22,7 +23,7 @@ const Post = ({ questionId }) => {
 
   return (
     <div className='col'>
-      {window.scrollTo(0, 0)}
+      {window.scrollTo(0, 0) /* 페이지에 접속하면 최상단으로 이동 */}
       <PostViewer type='question' postId={questionId} />
 
       <div className='mt-5'>

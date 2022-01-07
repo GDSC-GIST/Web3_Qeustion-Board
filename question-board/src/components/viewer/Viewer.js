@@ -15,6 +15,7 @@ const Viewer = ({ type, postId }) => {
   const [postObj, setPostObj] = useState({});
 
   useEffect(() => {
+    // data fetch
     const getData = async () => {
       const postRef = doc(dbService, `${type}/${postId}`);
       const newPostObj = (await getDoc(postRef)).data();
@@ -45,8 +46,11 @@ const Viewer = ({ type, postId }) => {
     const deleteConfirm = window.confirm('삭제하시겠습니까?');
 
     if (deleteConfirm) {
+      // 삭제하는 경우 firestore에서 게시글 삭제
       await deletePost(type, postId);
       alert('삭제되었습니다');
+
+      // 페이지 새로고침
       document.location.reload(true);
     }
   }

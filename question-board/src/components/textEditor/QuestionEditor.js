@@ -116,14 +116,19 @@ const QuestionEditor = ({ questionId = null }) => {
     event.preventDefault();
 
     if (questionTest(editorState)) {
-      if (questionId) { // 수정하는 경우
+      if (questionId) { 
+        // 수정하는 경우 수정 사항 업로드
         await updateQuestion(questionId, editorState, attachment);
         alert('질문이 수정되었습니다');
+
+        // 페이지 새로고침
         document.location.reload(true);
-      } else { // 새로 만드는 경우
+      } else { 
+        // 새로 작성하는 경우 firestore에 업로드
         await addQuestion(editorState, attachment);
         alert('질문이 게시되었습니다');
-        // 질문 페이지로 연결
+
+        // 질문 페이지로 연결 history.push
       }
     }
   };

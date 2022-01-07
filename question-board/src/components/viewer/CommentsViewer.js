@@ -1,6 +1,7 @@
 import Viewer from './Viewer';
 import 'bootstrap/dist/css/bootstrap.css';
 
+// 댓글들 렌더
 const CommentsViewer = ({ comments }) => {
   return (
     <>
