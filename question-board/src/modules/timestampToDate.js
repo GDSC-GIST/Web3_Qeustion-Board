@@ -1,3 +1,4 @@
+// timestamp를 년웡일 시간:분 형식으로 변경
 const timestampToDate = (timestamp) => {
   const date = new Date(timestamp);
 
