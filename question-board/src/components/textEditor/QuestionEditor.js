@@ -119,7 +119,7 @@ const QuestionEditor = ({ questionId = null }) => {
       if (questionId) { // 수정하는 경우
         await updateQuestion(questionId, editorState, attachment);
         alert('질문이 수정되었습니다');
-  
+        document.location.reload(true);
       } else { // 새로 만드는 경우
         await addQuestion(editorState, attachment);
         alert('질문이 게시되었습니다');

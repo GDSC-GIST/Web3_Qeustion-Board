@@ -55,13 +55,11 @@ const CommentEditor = ({ commentId = null, parentId }) => {
       if (commentId) { // 수정하는 경우
         await updateComment(commentId, editorState);
         alert('댓글이 수정되었습니다');
-  
-        setEditorState(EditorState.createEmpty());
+        document.location.reload(true);
       } else { // 새로 만드는 경우
         await addComment(parentId, editorState);
         alert('댓글이 게시되었습니다');
-  
-        setEditorState(EditorState.createEmpty());
+        document.location.reload(true);
       }
     }
   }

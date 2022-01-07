@@ -22,6 +22,7 @@ const Post = ({ questionId }) => {
 
   return (
     <div className='col'>
+      {window.scrollTo(0, 0)}
       <PostViewer type='question' postId={questionId} />
 
       <div className='mt-5'>
@@ -39,7 +40,7 @@ const Post = ({ questionId }) => {
       </div>
 
       <div className='mt-5'>
-        <TextEditor type='answer' />
+        <TextEditor type='answer' parentId={questionId}/>
       </div>
       
     </div>
