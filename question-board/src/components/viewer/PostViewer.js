@@ -34,7 +34,7 @@ const PostViewer = ({ type, postId }) => {
       }
 
       <hr className='text-muted'></hr>
-      <TextEditor type='comment' parentId='postId' />
+      <TextEditor type='comment' parentId={postId} />
     </>
   );
 };

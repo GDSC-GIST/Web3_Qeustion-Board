@@ -116,17 +116,11 @@ const AnswerEditor = ({ answerId = null, parentId }) => {
       if (answerId) { // 수정하는 경우
         await updateAnswer(answerId, editorState, attachment);
         alert('답변이 수정되었습니다');
-  
-        setEditorState(EditorState.createEmpty());
-        setAttachment('');
-        // 새로고침
+        document.location.reload(true);
       } else { // 새로 만드는 경우
         await addAnswer(parentId, editorState, attachment);
         alert('답변이 게시되었습니다');
-  
-        setEditorState(EditorState.createEmpty());
-        setAttachment('');
-        // 새로고침
+        document.location.reload(true);
       }
     }
   };

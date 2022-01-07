@@ -47,12 +47,12 @@ const Viewer = ({ type, postId }) => {
     if (deleteConfirm) {
       await deletePost(type, postId);
       alert('삭제되었습니다');
-      // 새로고침
+      document.location.reload(true);
     }
   }
 
   return (
-    <>
+    <div id={postId}>
       {editing ? <TextEditor type={type} postId={postId}/> :
         <>
           {(type === 'question') ? 
@@ -120,7 +120,7 @@ const Viewer = ({ type, postId }) => {
           </div>
         </>
       }   
-    </>
+    </div>
   );
 };
 
