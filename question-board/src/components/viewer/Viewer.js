@@ -3,12 +3,12 @@ import { Editor, EditorState, convertFromRaw } from "draft-js";
 import { doc, getDoc } from 'firebase/firestore';
 import { dbService } from '../../firebase';
 import TextEditor from '../textEditor/TextEditor';
-import deletePost from '../../modules/deletePost';
-import timestampToDate from '../../modules/timestampToDate';
+import { deletePost } from '../../modules/deletePost';
+import { timestampToDate } from '../../modules/timestampToDate';
 import 'draft-js/dist/Draft.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
-const Viewer = ({ type, postId }) => {
+const Viewer = ({ type = '', postId = '', userId = '' }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
@@ -57,26 +57,25 @@ const Viewer = ({ type, postId }) => {
 
   return (
     <div id={postId}>
-      {editing ? <TextEditor type={type} postId={postId}/> :
+      {editing ? 
+        <TextEditor 
+          type={type} 
+          postId={postId} 
+          userId={userId}
+        /> :
         <>
-          {(type === 'question') ? 
+          {((type === 'question') && dataFetched) ? 
             <>
               <div className='row'>
-                {postObj.grade ?
-                  <p className=''>
-                    {postObj.grade + '/' + postObj.subject }
-                  </p> :
-                  <></>
-                }
+                <p>
+                  {postObj.grade}/{postObj.subject}
+                </p>
               </div>
 
               <div className='row mb-2'>
-                {postObj.title ? 
-                  <h3 className='text-start'>
-                    {postObj.title}
-                  </h3> : 
-                  <></>
-                }
+                <p className='fs-3 text-start'>
+                  {postObj.title}
+                </p>
               </div>
             </> :
             <></>
@@ -86,33 +85,36 @@ const Viewer = ({ type, postId }) => {
             <div className='col'>
               {/*유저 프로필 사진과 닉네임*/}
 
-              {postObj.createdAt ? 
+              {dataFetched ? 
                 <p className='text-muted'>
                   {timestampToDate(postObj.createdAt)}
                 </p> : 
               <></>
               }
             </div>
-            
-            <div className='col text-end'>
-              <button 
-                onClick={toggleEdit}
-                className='btn btn-light btn-sm'
-              >수정</button>{' '}
-              <button 
-                onClick={onDeleteClick}
-                className='btn btn-light btn-sm'
-              >삭제</button>
-            </div>
+
+            {(userId && dataFetched && postObj.userId === userId) ?
+              <div className='col-4 text-end'>
+                <button 
+                  onClick={toggleEdit}
+                  className='btn btn-light btn-sm'
+                >수정</button>{' '}
+                <button 
+                  onClick={onDeleteClick}
+                  className='btn btn-light btn-sm'
+                >삭제</button>
+              </div> :
+              <></>
+            } 
           </div>   
         
-          {postObj.attachmentUrl ? 
+          {(dataFetched && postObj.attachmentUrl) ?
             <img 
               src={postObj.attachmentUrl} 
               alt='' 
               className='img-fluid my-2'
             /> : 
-            <></>
+            <></> 
           }
 
           <div className='mb-3'>

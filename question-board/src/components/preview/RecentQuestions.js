@@ -1,8 +1,8 @@
-import { dbService } from '../firebase'
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
+import { dbService } from '../../firebase'
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import QuestionPreview from './QuestionPreview';
-import '../style.css';
+import '../../style.css';
 
 const RecentQuestions = () => {
   const [questions, setQuestions] = useState([]);

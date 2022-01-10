@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '../../index.css'
 
 // 질문(또는 답변)과 댓글 렌더
-const PostViewer = ({ type, postId }) => {
+const PostViewer = ({ type = '', postId = '', userId = '' }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [comments, setComments] = useState([]);
 
@@ -25,17 +25,27 @@ const PostViewer = ({ type, postId }) => {
   }, [postId, dataFetched]);
 
   return (
-    <>
-      <Viewer type={type} postId={postId} />
+    <div className='mb-5'>
+      <Viewer 
+        type={type} 
+        postId={postId} 
+        userId={userId}
+      />
 
-      {dataFetched ?
-        (comments.length ? <CommentsViewer comments={comments} /> : <></>) : 
+      {(dataFetched && comments.length) ? 
+        <CommentsViewer 
+          comments={comments} 
+          userId={userId}
+        /> : 
         <></>
       }
 
-      <hr className='text-muted'></hr>
-      <TextEditor type='comment' parentId={postId} />
-    </>
+      <TextEditor 
+        type='comment' 
+        parentId={postId} 
+        userId={userId}
+      />
+    </div>
   );
 };
 

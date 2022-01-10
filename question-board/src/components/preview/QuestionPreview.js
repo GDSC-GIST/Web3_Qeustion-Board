@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { dbService } from '../firebase';
+import { BrowserRouter, Link } from 'react-router-dom';
+import { dbService } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import 'bootstrap/dist/css/bootstrap.css';
-import { BrowserRouter, Link } from 'react-router-dom';
-import '../style.css';
+import '../../style.css';
 
 // 질문 미리보기(링크)
 const QuestionPreview = ({ questionId }) => {

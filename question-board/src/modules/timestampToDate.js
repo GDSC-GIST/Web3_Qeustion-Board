@@ -7,3 +7,4 @@ const timestampToDate = (timestamp) => {
 };
 
 export default timestampToDate;
+export { timestampToDate };
