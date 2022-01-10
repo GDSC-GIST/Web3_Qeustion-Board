@@ -28,7 +28,7 @@ const updateAnswer = async (answerId, editorState, attachment) => {
   };
 
   // 수정 사항 업데이트
-  return await updateDoc(answerRef, updated);
+  await updateDoc(answerRef, updated);
 };
 
 // 수정한 댓글을 firestore에 업데이트하는 함수
@@ -43,7 +43,7 @@ const updateComment = async (commentId, editorState) => {
   };
 
   // 수정 사항 업데이트
-  return await updateDoc(commentRef, updated);
+  await updateDoc(commentRef, updated);
 };
 
 // 수정한 질문을 firestore에 업데이트하는 함수
@@ -73,10 +73,7 @@ const updateQuestion = async (questionId, editorState, attachment) => {
   };
 
   // 수정 사항 업데이트
-  return await updateDoc(questionRef, updated);
+  await updateDoc(questionRef, updated);
 };
 
-const updatePost = () => {};
-
-export default updatePost;
 export { updateQuestion, updateAnswer, updateComment };

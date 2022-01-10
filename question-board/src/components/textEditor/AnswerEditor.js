@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '../../index.css'
 
 // 답변용 텍스트 에디터
-const AnswerEditor = ({ answerId = null, parentId }) => {
+const AnswerEditor = ({ userId = '', answerId = '', parentId = '' }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [attachment, setAttachment] = useState('');
@@ -127,7 +127,7 @@ const AnswerEditor = ({ answerId = null, parentId }) => {
         document.location.reload(true);
       } else { 
         // 새로 작성하는 경우 firestore에 업로드
-        await addAnswer(parentId, editorState, attachment);
+        await addAnswer(userId, parentId, editorState, attachment);
         alert('답변이 게시되었습니다');
 
         // 페이지 새로고침

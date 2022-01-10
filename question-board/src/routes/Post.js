@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { dbService } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import TextEditor from '../components/textEditor/TextEditor'
 import PostViewer from '../components/viewer/PostViewer';
 
-const Post = ({ questionId }) => {
+const Post = ({ userId = '' }) => {
+  const { questionId } = useParams();
   const [dataFetched, setDataFetched] = useState(false);
   const [questionObj, setQuestionObj] = useState({});
 
@@ -23,27 +25,39 @@ const Post = ({ questionId }) => {
 
   return (
     <div className='col'>
-      {window.scrollTo(0, 0) /* 페이지에 접속하면 최상단으로 이동 */}
-      <PostViewer type='question' postId={questionId} />
+      {window.scrollTo(0, 0)}
+
+      <PostViewer 
+        type='question' 
+        postId={questionId} 
+        userId={userId} 
+      />
 
       <div className='mt-5'>
         <div className='row mb-3'>
-          <h3>답변</h3>
+          <p className='fs-3'>답변</p>
         </div>
         
-        {dataFetched ? (
-          questionObj.answers.length ?
-            questionObj.answers.map((answerId) => 
-              <PostViewer type='answer' postId={answerId} key={answerId}/>
-            ) : <></>) : 
-          <></>
+        {(dataFetched && questionObj.answers.length) ?
+          questionObj.answers.map((answerId) => 
+            <PostViewer 
+              type='answer' 
+              postId={answerId} 
+              userId={userId} 
+              key={answerId}
+            />
+          ) : 
+          <p className='text-muted'>아직 답변이 없습니다</p>
         }
       </div>
 
       <div className='mt-5'>
-        <TextEditor type='answer' parentId={questionId}/>
+        <TextEditor 
+          type='answer' 
+          userId={userId} 
+          parentId={questionId}
+        />
       </div>
-      
     </div>
   );
 };  

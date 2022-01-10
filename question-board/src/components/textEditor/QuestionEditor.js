@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dbService } from '../../firebase'
 import { doc, getDoc } from 'firebase/firestore';
 import { Editor, EditorState, RichUtils, convertFromRaw } from 'draft-js';
@@ -7,12 +8,13 @@ import { addQuestion } from '../../modules/addPost';
 import { updateQuestion } from '../../modules/updatePost';
 import 'draft-js/dist/Draft.css';
 import 'bootstrap/dist/css/bootstrap.css';
-import '../../index.css'
+import '../../index.css' ;
 
-const QuestionEditor = ({ questionId = null }) => {
+const QuestionEditor = ({ userId = '', questionId = '' }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [attachment, setAttachment] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // data fetch
@@ -104,9 +106,11 @@ const QuestionEditor = ({ questionId = null }) => {
 
     if (cancel) {
       if (questionId) {
-        //새로고침
+        // 새로고침
+        document.location.reload();
       } else {
-        setEditorState(EditorState.createEmpty());
+        // 이전 페이지로 링크
+        navigate(-1);
       }
     }
   };
@@ -125,10 +129,11 @@ const QuestionEditor = ({ questionId = null }) => {
         document.location.reload(true);
       } else { 
         // 새로 작성하는 경우 firestore에 업로드
-        await addQuestion(editorState, attachment);
+        const newQuestion = await addQuestion(userId, editorState, attachment);
         alert('질문이 게시되었습니다');
 
-        // 질문 페이지로 연결 history.push
+        // 질문 페이지로 연결
+        navigate(`/post/${newQuestion}`);
       }
     }
   };
@@ -151,6 +156,7 @@ const QuestionEditor = ({ questionId = null }) => {
             <option value='영어'>영어</option>
             <option value='수학'>수학</option>
             <option value='과학'>과학</option>
+            <option value='사회'>사회</option>
           </select>
         </div>
 

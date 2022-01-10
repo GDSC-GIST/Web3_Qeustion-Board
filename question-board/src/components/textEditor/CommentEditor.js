@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '../../index.css'
 
 // 댓글용 텍스트 에디터
-const CommentEditor = ({ commentId = null, parentId }) => {
+const CommentEditor = ({ userId = '', commentId = '', parentId = '' }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
@@ -64,7 +64,7 @@ const CommentEditor = ({ commentId = null, parentId }) => {
         document.location.reload(true);
       } else { 
         // 새로 작성하는 경우 firestore에 업로드
-        await addComment(parentId, editorState);
+        await addComment(userId, parentId, editorState);
         alert('댓글이 게시되었습니다');
 
         // 페이지 새로고침
