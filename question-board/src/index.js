@@ -1,11 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import './style.css'
+import RecentQuestions from './components/preview/RecentQuestions';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+   <RecentQuestions />,
+   document.getElementById('recent-questions')
 );
